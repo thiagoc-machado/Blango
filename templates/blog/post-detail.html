@@ -1,29 +1,38 @@
 {% extends "base.html" %}
-{% load blog_extras %}
-
-
+{% load blog_extras cache %}
 {% block content %}
-
-    <h2>{{ post.title }}</h2>
-
+<h2>{{ post.title }}</h2>
+{% row %}
+    <div class="col">
+        {% include "blog/post-byline.html" %}
+    </div>
+{% endrow %}
+{% if post.hero_image %}
     {% row %}
         {% col %}
-            {% include "blog/post-byline.html" %}
+            <img class="img-fluid" src="{{ post.hero_image.url }}">
         {% endcol %}
     {% endrow %}
-
+{% endif %}
+{% row %}
+    <div class="col">
+        {{ post.content|safe }}
+    </div>
+{% endrow %}
+{% if post.author.profile %}
     {% row %}
         {% col %}
-            {{ post.content|safe }}
+            <h4>About the author</h4>
+            <p>{{ post.author.profile.bio }}</p>
         {% endcol %}
     {% endrow %}
-
-    {% include "blog/post-comments.html" %}
-    <br>
-    {% row %}
-        {% col %}
+{% endif %}
+{% include "blog/post-comments.html" %}
+{% row %}
+    {% col %}
+        {% cache 3600 recent_posts post %}
             {% recent_posts post %}
-        {% endcol %}
-    {% endrow %}
-
+        {% endcache %}
+    {% endcol %}
+{% endrow %}
 {% endblock %}
